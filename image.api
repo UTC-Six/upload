@@ -1,0 +1,25 @@
+syntax = "v1"
+
+type (
+	UploadImagesReq {
+		OrderID string `path:"order_id"`
+	}
+	UploadResponse {
+		Message string `json:"message"`
+	}
+	GetImagesReq {
+		OrderID string `path:"order_id"`
+	}
+	GetImagesResponse {
+		Images []string `json:"images"`
+	}
+)
+
+service image-api {
+	@handler UploadImages
+	post /upload/:order_id (UploadImagesReq) returns (UploadResponse)
+
+	@handler GetImages
+	get /images/:order_id (GetImagesReq) returns (GetImagesResponse)
+}
+
