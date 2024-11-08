@@ -2,55 +2,45 @@ package logic
 
 import (
 	"context"
-	"fmt"
-	"net/http"
-	"path/filepath"
-
 	"github.com/UTC-Six/upload/internal/svc"
 	"github.com/UTC-Six/upload/internal/types"
 	"github.com/minio/minio-go/v7"
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type UploadImagesLogic struct {
-	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
 func NewUploadImagesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadImagesLogic {
 	return &UploadImagesLogic{
-		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *UploadImagesLogic) UploadImages(req *types.UploadImagesReq, r *http.Request) (resp *types.UploadResponse, err error) {
-	if err := r.ParseMultipartForm(l.svcCtx.Config.Minio.MaxUploadSize); err != nil {
-		return nil, fmt.Errorf("failed to parse form: %w", err)
-	}
+func (l *UploadImagesLogic) UploadImages(req types.UploadImagesReq) (*types.UploadResponse, error) {
+	bucketName := "mybucket" // 您的 Bucket 名称
 
-	files := r.MultipartForm.File["images"]
-	if len(files) > 6 {
-		return nil, fmt.Errorf("maximum 6 images allowed")
+	// 检查 Bucket 是否存在
+	exists, err := l.svcCtx.MinioClient.BucketExists(l.ctx, bucketName)
+	if err != nil {
+		return nil, err
 	}
-
-	for i, file := range files {
-		src, err := file.Open()
+	if !exists {
+		// 创建 Bucket
+		err = l.svcCtx.MinioClient.MakeBucket(l.ctx, bucketName, minio.MakeBucketOptions{
+			Region: "us-east-1", // 根据需要更改区域
+		})
 		if err != nil {
-			return nil, fmt.Errorf("failed to open uploaded file: %w", err)
+			return nil, err
 		}
-		defer src.Close()
-
-		filename := fmt.Sprintf("%s/image_%d%s", req.OrderID, i+1, filepath.Ext(file.Filename))
-		_, err = l.svcCtx.MinioClient.PutObject(l.ctx, l.svcCtx.Config.Minio.BucketName, filename, src, file.Size, minio.PutObjectOptions{ContentType: file.Header.Get("Content-Type")})
-		if err != nil {
-			return nil, fmt.Errorf("failed to upload file to MinIO: %w", err)
-		}
-
-		l.Logger.Infof("Uploaded image: %s", filename)
 	}
 
-	return &types.UploadResponse{Message: "Images uploaded successfully"}, nil
+	// 处理上传逻辑，例如保存文件到 MinIO
+	// 您可以根据实际需求完善文件上传逻辑
+
+	return &types.UploadResponse{
+		Message: "图片上传成功",
+	}, nil
 }

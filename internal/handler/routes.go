@@ -24,6 +24,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/upload/:order_id",
 				Handler: UploadImagesHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/create-bucket",
+				Handler: CreateBucketHandler(serverCtx),
+			},
 		},
 	)
 }

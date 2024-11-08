@@ -8,6 +8,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/zeromicro/go-zero/core/logx"
+	"log"
 )
 
 type ServiceContext struct {
@@ -16,13 +17,12 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	minioClient, err := minio.New(c.Minio.Endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(c.Minio.AccessKeyID, c.Minio.SecretAccessKey, ""),
-		Secure: c.Minio.UseSSL,
+	minioClient, err := minio.New("localhost:9000", &minio.Options{
+		Creds:  credentials.NewStaticV4("YOUR-ACCESS-KEY", "YOUR-SECRET-KEY", ""),
+		Secure: false,
 	})
 	if err != nil {
-		logx.Errorf("Failed to create MinIO client: %v", err)
-		panic(err)
+		log.Fatalf("初始化 MinIO 客户端失败: %v", err)
 	}
 
 	return &ServiceContext{

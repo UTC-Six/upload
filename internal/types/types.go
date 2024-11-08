@@ -12,7 +12,8 @@ type GetImagesResponse struct {
 }
 
 type UploadImagesReq struct {
-	OrderID string `path:"order_id"`
+	OrderID  string `path:"order_id"`
+	Demander string `form:"demander"`
 }
 
 type UploadResponse struct {

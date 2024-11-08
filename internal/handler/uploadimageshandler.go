@@ -18,11 +18,12 @@ func UploadImagesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		l := logic.NewUploadImagesLogic(r.Context(), svcCtx)
-		resp, err := l.UploadImages(&req, r)
+		resp, err := l.UploadImages(req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			return
 		}
+
+		httpx.OkJson(w, resp)
 	}
 }

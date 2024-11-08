@@ -1,0 +1,13 @@
+[Unit]
+Description=Image Upload Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/image-upload
+Restart=on-failure
+User=your_user
+Group=your_group
+
+[Install]
+WantedBy=multi-user.target 
